@@ -1,0 +1,6 @@
+{
+  "name": "VigilanceEye - Windows Endpoint Security & Privacy Monitor",
+  "description": "Local-first Windows endpoint security and privacy monitoring system featuring multi-source activity correlation, explainable evidence engine, and real-time remote camera and file tampering warnings.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

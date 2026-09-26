@@ -1,0 +1,193 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { CollectorHealth, EndpointDeviceHardware, NormalizedEvent, CorrelatedActivityChain, IncidentAlert } from '../types';
+
+export const INITIAL_COLLECTORS: CollectorHealth[] = [
+  {
+    collector_id: 'col_directshow',
+    name: 'DirectShow COM Filter Enumerator',
+    subsystem: 'Camera / Video Drivers',
+    status: 'HEALTHY',
+    events_collected_count: 142,
+    last_poll_ms: 120,
+    notes: 'Physical camera device enumerated successfully via CLSID_VideoInputDeviceCategory.',
+  },
+  {
+    collector_id: 'col_media_foundation',
+    name: 'Media Foundation Sensor Provider',
+    subsystem: 'Camera / Media Capture API',
+    status: 'HEALTHY',
+    events_collected_count: 89,
+    last_poll_ms: 145,
+    notes: 'Investigating active capture state via MFEnumDeviceSources & stream frame attributes.',
+  },
+  {
+    collector_id: 'col_etw_network',
+    name: 'ETW / WFP Network Telemetry',
+    subsystem: 'Network Sockets & Filtering',
+    status: 'HEALTHY',
+    events_collected_count: 1280,
+    last_poll_ms: 45,
+    notes: 'Tracking TCP/UDP connections, peer IPs, and correlating local port bindings to PIDs.',
+  },
+  {
+    collector_id: 'col_process_auditing',
+    name: 'Process & Token Handle Tracker',
+    subsystem: 'Process Creation & Privilege',
+    status: 'HEALTHY',
+    events_collected_count: 534,
+    last_poll_ms: 30,
+    notes: 'Monitoring PID creation, parent-child trees, command-line arguments, and code signatures.',
+  },
+  {
+    collector_id: 'col_filesystem_usn',
+    name: 'USN Journal & ReadDirectoryChangesW',
+    subsystem: 'Storage / File I/O',
+    status: 'HEALTHY',
+    events_collected_count: 760,
+    last_poll_ms: 60,
+    notes: 'Observing file creation, modification, deletion across C:\\Users and system drives.',
+  },
+  {
+    collector_id: 'col_win_events',
+    name: 'Windows Event Log Channel Listener',
+    subsystem: 'Security & System Logs',
+    status: 'HEALTHY',
+    events_collected_count: 310,
+    last_poll_ms: 210,
+    notes: 'Parsing Event 4688 (Process Creation) and Event 5156 (WFP Connection Permitted).',
+  },
+];
+
+export const INITIAL_HARDWARE_DEVICES: EndpointDeviceHardware[] = [
+  {
+    device_id: 'dev_cam_01',
+    name: 'Integrated HD Webcam (Wide Vision)',
+    type: 'WEBCAM',
+    hardware_id: 'USB\\VID_04F2&PID_B684&REV_0031',
+    driver_version: '10.0.22621.1',
+    current_state: 'IDLE',
+  },
+  {
+    device_id: 'dev_mic_01',
+    name: 'Realtek High Definition Audio Microphone Array',
+    type: 'MICROPHONE',
+    hardware_id: 'HDAUDIO\\FUNC_01&VEN_10EC&DEV_0285',
+    driver_version: '6.0.9285.1',
+    current_state: 'IDLE',
+  },
+  {
+    device_id: 'dev_nic_01',
+    name: 'Intel(R) Wi-Fi 6 AX201 160MHz (192.168.1.102)',
+    type: 'NETWORK_INTERFACE',
+    hardware_id: 'PCI\\VEN_8086&DEV_A0F0&SUBSYS_00748086',
+    driver_version: '22.130.0.5',
+    current_state: 'ACTIVE_STREAMING',
+  },
+];
+
+// Baseline events showcasing clean initial telemetry
+export const INITIAL_EVENTS: NormalizedEvent[] = [
+  {
+    event_id: 'evt_sys_001',
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    event_type: 'SYSTEM',
+    source: 'WindowsEvent_Security_4624',
+    event_code: 4624,
+    channel: 'Security',
+    description: 'An account was successfully logged on (Interactive Console).',
+    process_id: 672,
+    process_name: 'lsass.exe',
+    user_session: 'DESKTOP-WIN11\\Admin',
+    device: 'Interactive Console',
+    evidence_summary: 'Successful interactive logon for user Admin (LogonType 2).',
+    raw_payload: { LogonType: 2, TargetUserName: 'Admin', TargetDomainName: 'DESKTOP-WIN11' },
+  },
+  {
+    event_id: 'evt_proc_002',
+    timestamp: new Date(Date.now() - 3500000).toISOString(),
+    event_type: 'PROCESS',
+    source: 'ProcessTracker_ETW',
+    process_id: 1140,
+    process_name: 'explorer.exe',
+    user_session: 'DESKTOP-WIN11\\Admin',
+    action: 'START',
+    executable_path: 'C:\\Windows\\explorer.exe',
+    parent_process_name: 'userinit.exe',
+    parent_process_id: 1024,
+    command_line: 'C:\\Windows\\Explorer.EXE',
+    signature_status: 'VERIFIED',
+    publisher: 'Microsoft Windows Publisher',
+    evidence_summary: 'Desktop Shell initialized with verified Microsoft digital signature.',
+    raw_payload: { IntegrityLevel: 'Medium', SessionId: 1 },
+  },
+  {
+    event_id: 'evt_cam_003',
+    timestamp: new Date(Date.now() - 3400000).toISOString(),
+    event_type: 'CAMERA',
+    source: 'DirectShow_COM',
+    process_id: 4,
+    process_name: 'System',
+    user_session: 'NT AUTHORITY\\SYSTEM',
+    device: 'Integrated HD Webcam (Wide Vision)',
+    camera_device_name: 'Integrated HD Webcam (Wide Vision)',
+    driver_source: 'DirectShow',
+    capture_state: 'AVAILABLE',
+    resolution: '1920x1080',
+    fps: 30,
+    evidence_summary: 'Camera enumerated by DirectShow COM filter graph. Available, no active client.',
+    raw_payload: { PinCount: 1, MediaSubtype: 'NV12' },
+  },
+  {
+    event_id: 'evt_net_004',
+    timestamp: new Date(Date.now() - 3000000).toISOString(),
+    event_type: 'NETWORK',
+    source: 'ETW_WFP',
+    process_id: 1140,
+    process_name: 'explorer.exe',
+    user_session: 'DESKTOP-WIN11\\Admin',
+    protocol: 'TCP',
+    local_ip: '192.168.1.102',
+    local_port: 52140,
+    remote_ip: '192.168.1.1',
+    remote_port: 53,
+    state: 'ESTABLISHED',
+    classification: 'LAN',
+    peer_device_hint: 'Local Gateway / DNS',
+    evidence_summary: 'Outbound DNS query to LAN gateway over local network.',
+    raw_payload: { Direction: 'Outbound', Interface: 'Wi-Fi' },
+  },
+];
+
+export const INITIAL_CHAINS: CorrelatedActivityChain[] = [
+  {
+    chain_id: 'chain_baseline_01',
+    title: 'Baseline System Startup Telemetry',
+    start_time: new Date(Date.now() - 3600000).toISOString(),
+    last_updated: new Date(Date.now() - 3400000).toISOString(),
+    primary_process: {
+      pid: 1140,
+      name: 'explorer.exe',
+      path: 'C:\\Windows\\explorer.exe',
+      signature: 'Microsoft Windows Publisher (VERIFIED)',
+    },
+    remote_peer: {
+      ip: '192.168.1.1',
+      port: 53,
+      device_name: 'Gateway Router',
+      classification: 'LAN',
+    },
+    related_event_ids: ['evt_sys_001', 'evt_proc_002', 'evt_cam_003', 'evt_net_004'],
+    anomalies_detected: [],
+    evidence_strength: 'DIRECT',
+    interpretation: 'Normal local user session initialization and routine local gateway resolution.',
+    risk_level: 'INFO',
+    mitre_attack: [],
+    limitations: ['Hardware video capture state confirmed idle via DirectShow COM query.'],
+  },
+];
+
+export const INITIAL_ALERTS: IncidentAlert[] = [];
